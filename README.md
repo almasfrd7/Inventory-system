@@ -1,6 +1,6 @@
 # Inventory System
 
-A web-based Inventory Management System built with **Laravel** and **MySQL**, featuring a **RESTful API** for managing inventory data.
+A **web-based Inventory Management System** built with **Laravel** and **MySQL**, featuring a **RESTful API** for managing inventory data.
 
 ## About
 
