@@ -142,4 +142,4 @@ This project is part of my learning and portfolio work, focusing on:
 
 ## License
 
-This project is open-sourc
+This project is open-sourced under the MIT License.
