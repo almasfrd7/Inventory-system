@@ -1,0 +1,16 @@
+Invoke-RestMethod `
+  -Uri "http://127.0.0.1:8000/api/products" `
+  -Method Post ` Create
+  -Method Put ` Update
+  -Method Get ` Read
+  -Method Delete `  Delete 
+  -ContentType "application/json" `
+  -Body '{
+    "name": "Mechanical Keyboard",
+    "code": "KB001",
+    "price": 159.90,
+    "stock": 15,
+    "description": "RGB mechanical keyboard"
+  }'
+
+  
