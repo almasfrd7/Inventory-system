@@ -1,235 +1,245 @@
-INVENTORY SYSTEM - TODO LIST
-=============================
+# INVENTORY SYSTEM - TODO LIST
 
 PROJECT STATUS
-Current stage: Frontend Development
-
+Current stage: Inventory Features
 
 =============================
 COMPLETED
-=============================
+=========
 
 [✓] PROJECT SETUP
-    [✓] Create Laravel project
-    [✓] Configure Laravel .env
-    [✓] Create MySQL database: inventory_system
-    [✓] Run Laravel migrations
-    [✓] Start Laravel development server
+[✓] Create Laravel project
+[✓] Configure Laravel .env
+[✓] Create MySQL database: inventory_system
+[✓] Run Laravel migrations
+[✓] Start Laravel development server
 
 [✓] DATABASE
-    [✓] Create products table
-    [✓] Add id
-    [✓] Add name
-    [✓] Add code
-    [✓] Add price
-    [✓] Add stock
-    [✓] Add description
-    [✓] Add created_at / updated_at
-    [✓] Make product code unique
+[✓] Create products table
+[✓] Add id
+[✓] Add name
+[✓] Add code
+[✓] Add price
+[✓] Add stock
+[✓] Add description
+[✓] Add created_at / updated_at
+[✓] Make product code unique
 
 [✓] LARAVEL BACKEND
-    [✓] Create Product model
-    [✓] Configure Product $fillable
-    [✓] Create ProductController
-    [✓] Add request validation
-    [✓] Enable Laravel API routes
-    [✓] Create API resource routes
+[✓] Create Product model
+[✓] Configure Product $fillable
+[✓] Create ProductController
+[✓] Add request validation
+[✓] Enable Laravel API routes
+[✓] Create API resource routes
 
 [✓] REST API
-    [✓] GET /api/products
-        - Get all products
+[✓] GET /api/products
+- Get all products
 
-    [✓] GET /api/products/{id}
-        - Get one product
+```
+[✓] GET /api/products/{id}
+    - Get one product
 
-    [✓] POST /api/products
-        - Create product
+[✓] POST /api/products
+    - Create product
 
-    [✓] PUT /api/products/{id}
-        - Update product
+[✓] PUT /api/products/{id}
+    - Update product
 
-    [✓] DELETE /api/products/{id}
-        - Delete product
+[✓] DELETE /api/products/{id}
+    - Delete product
+```
 
 [✓] API TESTING
-    [✓] Test GET using PowerShell
-    [✓] Test POST using PowerShell
-    [✓] Test PUT using PowerShell
-    [✓] Test DELETE using PowerShell
-    [✓] Successfully create product
-    [✓] Successfully retrieve product
-    [✓] Successfully update product
-    [✓] Successfully delete product
+[✓] Test GET using PowerShell
+[✓] Test POST using PowerShell
+[✓] Test PUT using PowerShell
+[✓] Test DELETE using PowerShell
+[✓] Successfully create product
+[✓] Successfully retrieve product
+[✓] Successfully update product
+[✓] Successfully delete product
 
 [✓] GITHUB
-    [✓] Configure project-specific Git identity
-    [✓] Set GitHub remote
-    [✓] Configure Git Credential Manager
-    [✓] Create/update README
+[✓] Configure project-specific Git identity
+[✓] Set GitHub remote
+[✓] Configure Git Credential Manager
+[✓] Create/update README
 
+[✓] PHASE 1 - FRONTEND SETUP
+
+```
+[✓] Create resources/views/inventory.blade.php
+[✓] Add web route for /
+[✓] Create basic HTML structure
+[✓] Create CSS
+[✓] Create JavaScript
+[✓] Display Inventory System page
+```
+
+[✓] PHASE 2 - CONNECT FRONTEND TO API
+
+```
+[✓] Use JavaScript fetch() to call GET /api/products
+[✓] Display products in a table
+[✓] Display product name
+[✓] Display product code
+[✓] Display product price
+[✓] Display product stock
+[✓] Display product description
+[✓] Add loading state
+[✓] Add API error handling
+```
+
+[✓] PHASE 3 - PRODUCT CREATE
+
+```
+[✓] Create Add Product form
+[✓] Add name input
+[✓] Add code input
+[✓] Add price input
+[✓] Add stock input
+[✓] Add description input
+[✓] Connect form to POST /api/products
+[✓] Handle validation errors
+[✓] Show success message
+[✓] Refresh product list after creation
+```
+
+[✓] PHASE 4 - PRODUCT UPDATE
+
+```
+[✓] Add Edit button
+[✓] Create Edit Product form
+[✓] Load existing product data
+[✓] Connect form to PUT /api/products/{id}
+[✓] Handle validation errors
+[✓] Show success message
+[✓] Refresh product list after update
+```
+
+[✓] PHASE 5 - PRODUCT DELETE
+
+```
+[✓] Add Delete button
+[✓] Add delete confirmation
+[✓] Connect to DELETE /api/products/{id}
+[✓] Show success message
+[✓] Refresh product list after deletion
+```
 
 =============================
 TO DO
-=============================
-
-[ ] PHASE 1 - FRONTEND SETUP
-
-    [ ] Create resources/views/inventory.blade.php
-    [ ] Add web route for /
-    [ ] Create basic HTML structure
-    [ ] Create CSS
-    [ ] Create JavaScript
-    [ ] Display Inventory System page
-
-
-[ ] PHASE 2 - CONNECT FRONTEND TO API
-
-    [ ] Use JavaScript fetch() to call GET /api/products
-    [ ] Display products in a table
-    [ ] Display product name
-    [ ] Display product code
-    [ ] Display product price
-    [ ] Display product stock
-    [ ] Display product description
-    [ ] Add loading state
-    [ ] Add API error handling
-
-
-[ ] PHASE 3 - PRODUCT CREATE
-
-    [ ] Create Add Product form
-    [ ] Add name input
-    [ ] Add code input
-    [ ] Add price input
-    [ ] Add stock input
-    [ ] Add description input
-    [ ] Connect form to POST /api/products
-    [ ] Handle validation errors
-    [ ] Show success message
-    [ ] Refresh product list after creation
-
-
-[ ] PHASE 4 - PRODUCT UPDATE
-
-    [ ] Add Edit button
-    [ ] Create Edit Product form/modal
-    [ ] Load existing product data
-    [ ] Connect form to PUT /api/products/{id}
-    [ ] Handle validation errors
-    [ ] Show success message
-    [ ] Refresh product list after update
-
-
-[ ] PHASE 5 - PRODUCT DELETE
-
-    [ ] Add Delete button
-    [ ] Add delete confirmation
-    [ ] Connect to DELETE /api/products/{id}
-    [ ] Show success message
-    [ ] Refresh product list after deletion
-
+=====
 
 [ ] PHASE 6 - INVENTORY FEATURES
 
-    [ ] Display total number of products
-    [ ] Display total stock quantity
-    [ ] Add low-stock indicator
-    [ ] Add out-of-stock indicator
-    [ ] Add stock adjustment
-    [ ] Add/remove stock
-    [ ] Add product search
-    [ ] Add product filtering
-    [ ] Add product sorting
-
+```
+[ ] Display total number of products
+[ ] Display total stock quantity
+[ ] Add low-stock indicator
+[ ] Add out-of-stock indicator
+[ ] Add stock adjustment
+[ ] Add/remove stock
+[ ] Add product search
+[ ] Add product filtering
+[ ] Add product sorting
+```
 
 [ ] PHASE 7 - DASHBOARD / UI
 
-    [ ] Create dashboard layout
-    [ ] Add navigation/sidebar
-    [ ] Add product statistics
-    [ ] Improve product table
-    [ ] Add responsive design
-    [ ] Add success notifications
-    [ ] Add error notifications
-    [ ] Add loading indicators
-    [ ] Add empty-state message
-    [ ] Improve form validation
-
+```
+[ ] Create dashboard layout
+[ ] Add navigation/sidebar
+[ ] Add product statistics
+[ ] Improve product table
+[ ] Add responsive design
+[ ] Add success notifications
+[ ] Add error notifications
+[ ] Add loading indicators
+[ ] Add empty-state message
+[ ] Improve form validation
+```
 
 [ ] PHASE 8 - BACKEND IMPROVEMENTS
 
-    [ ] Improve API response structure
-    [ ] Add proper HTTP status codes
-    [ ] Add API pagination
-    [ ] Add API search/filtering
-    [ ] Add API sorting
-    [ ] Improve validation
-    [ ] Improve error handling
-    [ ] Add API authentication
-    [ ] Protect product-management endpoints
-
+```
+[ ] Improve API response structure
+[ ] Add proper HTTP status codes
+[ ] Add API pagination
+[ ] Add API search/filtering
+[ ] Add API sorting
+[ ] Improve validation
+[ ] Improve error handling
+[ ] Add API authentication
+[ ] Protect product-management endpoints
+```
 
 [ ] PHASE 9 - TESTING
 
-    [ ] Test successful CRUD operations
-    [ ] Test missing required fields
-    [ ] Test duplicate product codes
-    [ ] Test negative prices
-    [ ] Test negative stock
-    [ ] Test invalid product IDs
-    [ ] Test updating nonexistent products
-    [ ] Test deleting nonexistent products
-    [ ] Test frontend/API errors
-
+```
+[ ] Test successful CRUD operations
+[ ] Test missing required fields
+[ ] Test duplicate product codes
+[ ] Test negative prices
+[ ] Test negative stock
+[ ] Test invalid product IDs
+[ ] Test updating nonexistent products
+[ ] Test deleting nonexistent products
+[ ] Test frontend/API errors
+```
 
 [ ] PHASE 10 - GITHUB / DEPLOYMENT
 
-    [ ] Commit current progress
-    [ ] Push project to GitHub
-    [ ] Maintain progressive commit history
-    [ ] Add screenshots to README
-    [ ] Document API endpoints
-    [ ] Document project architecture
-    [ ] Deploy Laravel application
-    [ ] Configure production database
-    [ ] Configure production .env
-    [ ] Test production API
-    [ ] Test production frontend
-
+```
+[ ] Commit current progress
+[ ] Push project to GitHub
+[ ] Maintain progressive commit history
+[ ] Add screenshots to README
+[ ] Document API endpoints
+[ ] Document project architecture
+[ ] Deploy Laravel application
+[ ] Configure production database
+[ ] Configure production .env
+[ ] Test production API
+[ ] Test production frontend
+```
 
 =============================
 CURRENT POSITION
-=============================
+================
 
 DATABASE
-    ↓
+↓
 LARAVEL MODEL
-    ↓
+↓
 CONTROLLER
-    ↓
+↓
 REST API
-    ↓
+↓
 CRUD TESTING
-    ↓
-[CURRENT] FRONTEND
-    ↓
+↓
+FRONTEND
+↓
 PRODUCT MANAGEMENT UI
-    ↓
-INVENTORY FEATURES
-    ↓
+↓
+[CURRENT] INVENTORY FEATURES
+↓
+DASHBOARD / UI
+↓
+BACKEND IMPROVEMENTS
+↓
 TESTING
-    ↓
+↓
 DEPLOYMENT
-
 
 =============================
 NEXT 3 TASKS
-=============================
+============
 
-[ ] 1. Create resources/views/inventory.blade.php
+[ ] 1. Display total number of products
 
-[ ] 2. Add / route in routes/web.php
+[ ] 2. Display total stock quantity
 
-[ ] 3. Build the first frontend page that uses
-      JavaScript fetch() to retrieve products from
-      GET /api/products
+[ ] 3. Add low-stock / out-of-stock indicators

@@ -8,36 +8,96 @@
     <title>Inventory System</title>
 
     <style>
-        /* Basic page styling */
+        /* ==============================
+           GENERAL PAGE STYLING
+           ============================== */
+
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
-            background: #f5f5f5;
+            background-color: #f5f5f5;
         }
 
         h1 {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
-        /* Product table styling */
+        h2 {
+            margin-top: 40px;
+        }
+
+        /* ==============================
+           TABLE STYLING
+           ============================== */
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            background-color: white;
         }
 
         th,
         td {
-            padding: 12px;
             border: 1px solid #ddd;
+            padding: 10px;
             text-align: left;
         }
 
         th {
-            background: #eee;
+            background-color: #eee;
         }
 
-        /* Loading and error messages */
+        /* ==============================
+           FORM STYLING
+           ============================== */
+
+        form {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            max-width: 500px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        #submitButton {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #cancelButton {
+            background-color: #777;
+            color: white;
+            display: none;
+        }
+
+        .editButton {
+            background-color: #ffc107;
+        }
+
+        .deleteButton {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* ==============================
+           MESSAGE STYLING
+           ============================== */
+
         #loading {
             margin-bottom: 15px;
         }
@@ -47,36 +107,8 @@
             margin-bottom: 15px;
         }
 
-        /* Add Product form */
-        form {
-            margin-top: 20px;
-            padding: 20px;
-            background: white;
-        }
-
-        form div {
-            margin-bottom: 10px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            max-width: 400px;
-            padding: 8px;
-        }
-
-        button {
-            padding: 8px 16px;
-            cursor: pointer;
-        }
-
         #message {
-            margin-top: 10px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -85,14 +117,20 @@
 
     <h1>Inventory System</h1>
 
-    <!-- Displays a loading message while products are being retrieved -->
-    <div id="loading">Loading products...</div>
+    <!-- Loading message -->
+    <div id="loading">
+        Loading products...
+    </div>
 
-    <!-- Displays errors when the API request fails -->
+    <!-- Error message -->
     <div id="error"></div>
 
-    <!-- Product list -->
+    <!-- ==============================
+         PRODUCT TABLE
+         ============================== -->
+
     <table>
+
         <thead>
             <tr>
                 <th>ID</th>
@@ -101,240 +139,682 @@
                 <th>Price</th>
                 <th>Stock</th>
                 <th>Description</th>
+                <th>Actions</th>
             </tr>
         </thead>
 
-        <!-- JavaScript will insert product rows here -->
         <tbody id="productTable">
+            <!-- Products will be inserted here using JavaScript -->
         </tbody>
+
     </table>
 
-    <!-- Add Product section -->
-    <h2>Add Product</h2>
+
+    <!-- ==============================
+         ADD / EDIT PRODUCT FORM
+         ============================== -->
+
+    <h2 id="formTitle">Add Product</h2>
 
     <form id="productForm">
 
-        <div>
-            <label for="name">Name</label>
-            <input type="text" id="name" required>
-        </div>
+        <!-- Product name -->
+        <label for="name">
+            Name:
+        </label>
 
-        <div>
-            <label for="code">Code</label>
-            <input type="text" id="code" required>
-        </div>
+        <input type="text" id="name" required>
 
-        <div>
-            <label for="price">Price</label>
-            <input type="number" id="price" step="0.01" min="0" required>
-        </div>
 
-        <div>
-            <label for="stock">Stock</label>
-            <input type="number" id="stock" min="0" required>
-        </div>
+        <!-- Product code -->
+        <label for="code">
+            Code:
+        </label>
 
-        <div>
-            <label for="description">Description</label>
-            <textarea id="description"></textarea>
-        </div>
+        <input type="text" id="code" required>
 
-        <button type="submit">Add Product</button>
+
+        <!-- Product price -->
+        <label for="price">
+            Price:
+        </label>
+
+        <input type="number" id="price" step="0.01" min="0" required>
+
+
+        <!-- Product stock -->
+        <label for="stock">
+            Stock:
+        </label>
+
+        <input type="number" id="stock" min="0" required>
+
+
+        <!-- Product description -->
+        <label for="description">
+            Description:
+        </label>
+
+        <textarea id="description" rows="4"></textarea>
+
+
+        <!-- Submit button -->
+        <button type="submit" id="submitButton">
+            Add Product
+        </button>
+
+
+        <!-- Cancel edit button -->
+        <button type="button" id="cancelButton">
+            Cancel
+        </button>
 
     </form>
 
-    <!-- Displays success or error messages after adding a product -->
+    <!-- Success / error message -->
     <p id="message"></p>
 
 
     <script>
 
         /*
-         * GET /api/products
-         *
-         * Retrieves all products from the Laravel REST API
-         * and displays them in the product table.
-         */
+        ==========================================
+        GLOBAL VARIABLE
+        ==========================================
+
+        Stores the ID of the product currently
+        being edited.
+
+        null = Add mode
+        number = Edit mode
+        */
+
+        let editingProductId = null;
+
+
+        /*
+        ==========================================
+        GET ALL PRODUCTS
+        ==========================================
+
+        API endpoint:
+
+        GET /api/products
+
+        This function gets all products from Laravel
+        and displays them in the table.
+        */
+
         async function loadProducts() {
 
             try {
 
-                // Send GET request to the Laravel API
                 const response = await fetch('/api/products');
 
-                // Check if the API request was unsuccessful
+
+                // Check if API request failed
                 if (!response.ok) {
                     throw new Error('Failed to load products');
                 }
 
-                // Convert the API response from JSON into JavaScript data
+
+                // Convert response to JSON
                 const products = await response.json();
 
-                // Get the table body element
+
+                // Get table body
                 const table = document.getElementById('productTable');
 
-                /*
-                 * Clear the existing table rows.
-                 *
-                 * This is important because loadProducts() is also called
-                 * after creating a new product. Without this, the existing
-                 * products would appear twice.
-                 */
+
+                // Clear existing rows
                 table.innerHTML = '';
 
-                // Create a table row for each product
+
+                /*
+                Loop through every product
+                returned by the API.
+                */
+
                 products.forEach(product => {
 
+                    // Create a new table row
                     const row = document.createElement('tr');
 
+
+                    /*
+                    Add product information
+                    and action buttons.
+                    */
+
                     row.innerHTML = `
+
                         <td>${product.id}</td>
+
                         <td>${product.name}</td>
+
                         <td>${product.code}</td>
-                        <td>RM ${product.price}</td>
+
+                        <td>RM ${parseFloat(product.price).toFixed(2)}</td>
+
                         <td>${product.stock}</td>
+
                         <td>${product.description ?? ''}</td>
+
+                        <td>
+
+                            <button
+                                class="editButton"
+                                onclick="editProduct(${product.id})"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                class="deleteButton"
+                                onclick="deleteProduct(${product.id})"
+                            >
+                                Delete
+                            </button>
+
+                        </td>
+
                     `;
 
-                    // Add the row to the product table
+
+                    // Add row to table
                     table.appendChild(row);
+
                 });
 
-                // Remove the loading message after products are loaded
+
+                // Hide loading message
                 document.getElementById('loading').textContent = '';
 
-            } catch (error) {
 
-                // Remove loading message
+            } 
+            catch (error) {
+
                 document.getElementById('loading').textContent = '';
 
-                // Display an error message to the user
                 document.getElementById('error').textContent =
                     'Unable to load products.';
 
-                // Display the actual error in the browser console
                 console.error(error);
+
             }
+
         }
 
 
         /*
-         * Load products when the webpage first opens.
-         */
-        loadProducts();
+        ==========================================
+        GET SINGLE PRODUCT
+        ==========================================
+
+        API endpoint:
+
+        GET /api/products/{id}
+
+        This function gets one product from Laravel
+        when the user clicks Edit.
+        */
+
+        async function editProduct(id) {
+
+            try {
+
+                const response = await fetch(`/api/products/${id}`);
+
+
+                if (!response.ok) {
+                    throw new Error('Failed to load product');
+                }
+
+
+                // Convert API response to JSON
+                const product = await response.json();
+
+
+                /*
+                Put the product data into
+                the form fields.
+                */
+
+                document.getElementById('name').value =
+                    product.name;
+
+                document.getElementById('code').value =
+                    product.code;
+
+                document.getElementById('price').value =
+                    product.price;
+
+                document.getElementById('stock').value =
+                    product.stock;
+
+                document.getElementById('description').value =
+                    product.description ?? '';
+
+
+                /*
+                Store the product ID.
+
+                This tells the submit function
+                that we are editing instead of
+                creating a new product.
+                */
+
+                editingProductId = id;
+
+
+                /*
+                Change form UI from:
+
+                Add Product
+
+                to:
+
+                Edit Product
+                */
+
+                document.getElementById('formTitle').textContent =
+                    'Edit Product';
+
+                document.getElementById('submitButton').textContent =
+                    'Update Product';
+
+                document.getElementById('cancelButton').style.display =
+                    'inline-block';
+
+
+                // Scroll to form
+                document.getElementById('productForm')
+                    .scrollIntoView({
+                        behavior: 'smooth'
+                    });
+
+
+            } catch (error) {
+
+                document.getElementById('message').textContent =
+                    error.message;
+
+                console.error(error);
+
+            }
+
+        }
 
 
         /*
-         * POST /api/products
-         *
-         * Handles the Add Product form.
-         */
-        document.getElementById('productForm').addEventListener(
-            'submit',
-            async function (event) {
+        ==========================================
+        CREATE / UPDATE PRODUCT
+        ==========================================
 
-                /*
-                 * Prevent the browser from refreshing the page
-                 * when the form is submitted.
-                 */
+        ADD:
+
+        POST /api/products
+
+        UPDATE:
+
+        PUT /api/products/{id}
+
+        The endpoint depends on whether
+        editingProductId is null.
+        */
+
+        document
+            .getElementById('productForm')
+            .addEventListener('submit', async function (event) {
+
+                // Prevent normal HTML form submission
                 event.preventDefault();
 
 
                 /*
-                 * Collect the values entered by the user.
-                 *
-                 * parseFloat() converts the price from a string
-                 * into a decimal number.
-                 *
-                 * parseInt() converts the stock from a string
-                 * into an integer.
-                 */
+                Collect data from the form.
+                */
+
                 const product = {
-                    name: document.getElementById('name').value,
-                    code: document.getElementById('code').value,
+
+                    name: document
+                        .getElementById('name')
+                        .value,
+
+                    code: document
+                        .getElementById('code')
+                        .value,
+
                     price: parseFloat(
-                        document.getElementById('price').value
+                        document
+                            .getElementById('price')
+                            .value
                     ),
+
                     stock: parseInt(
-                        document.getElementById('stock').value
+                        document
+                            .getElementById('stock')
+                            .value
                     ),
-                    description: document.getElementById('description').value
+
+                    description: document
+                        .getElementById('description')
+                        .value
+
                 };
 
 
                 try {
 
-                    /*
-                     * Send the product data to Laravel.
-                     *
-                     * This is a POST request:
-                     *
-                     * Browser
-                     *     ↓
-                     * POST /api/products
-                     *     ↓
-                     * Laravel
-                     *     ↓
-                     * MySQL
-                     */
-                    const response = await fetch('/api/products', {
-
-                        method: 'POST',
-
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-
-                        // Convert JavaScript object into JSON
-                        body: JSON.stringify(product)
-                    });
-
-
-                    // Convert Laravel's response into JavaScript data
-                    const data = await response.json();
+                    let response;
 
 
                     /*
-                     * Check whether Laravel returned an error.
-                     */
-                    if (!response.ok) {
-                        throw new Error(
-                            data.message || 'Failed to create product'
+                    ======================================
+                    EDIT MODE
+                    ======================================
+
+                    If editingProductId contains an ID,
+                    send PUT request.
+                    */
+
+                    if (editingProductId !== null) {
+
+                        response = await fetch(
+                            `/api/products/${editingProductId}`,
+                            {
+                                method: 'PUT',
+
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+
+                                body: JSON.stringify(product)
+                            }
                         );
+
                     }
 
 
                     /*
-                     * Product was successfully created.
-                     */
-                    document.getElementById('message').textContent =
-                        'Product added successfully!';
+                    ======================================
+                    ADD MODE
+                    ======================================
 
+                    If editingProductId is null,
+                    send POST request.
+                    */
 
-                    // Clear the form
-                    document.getElementById('productForm').reset();
+                    else {
+
+                        response = await fetch(
+                            '/api/products',
+                            {
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+
+                                body: JSON.stringify(product)
+                            }
+                        );
+
+                    }
 
 
                     /*
-                     * Reload the product list so the newly created
-                     * product appears in the table.
-                     */
+                    Convert Laravel response
+                    into JSON.
+                    */
+
+                    const data = await response.json();
+
+
+                    /*
+                    Laravel validation errors
+                    or other API errors.
+                    */
+
+                    if (!response.ok) {
+
+                        /*
+                        Laravel validation errors
+                        usually look like:
+
+                        {
+                            "message": "...",
+                            "errors": {
+                                "name": [...]
+                            }
+                        }
+                        */
+
+                        if (data.errors) {
+
+                            const errors = Object.values(data.errors)
+                                .flat()
+                                .join(' ');
+
+                            throw new Error(errors);
+
+                        }
+
+                        throw new Error(
+                            data.message ||
+                            'Request failed'
+                        );
+
+                    }
+
+
+                    /*
+                    Show success message.
+                    */
+
+                    if (editingProductId !== null) {
+
+                        document.getElementById('message')
+                            .textContent =
+                            'Product updated successfully!';
+
+                    } else {
+
+                        document.getElementById('message')
+                            .textContent =
+                            'Product added successfully!';
+
+                    }
+
+
+                    /*
+                    Reset form.
+                    */
+
+                    resetForm();
+
+
+                    /*
+                    Reload products so the
+                    table shows the latest data.
+                    */
+
                     loadProducts();
+
 
                 } catch (error) {
 
-                    /*
-                     * Display the error to the user.
-                     */
-                    document.getElementById('message').textContent =
-                        error.message;
+                    document.getElementById('message')
+                        .textContent = error.message;
 
-                    // Display detailed error in browser console
                     console.error(error);
+
                 }
+
+            });
+
+
+        /*
+        ==========================================
+        DELETE PRODUCT
+        ==========================================
+
+        API endpoint:
+
+        DELETE /api/products/{id}
+        */
+
+        async function deleteProduct(id) {
+
+            /*
+            Ask user for confirmation before
+            deleting the product.
+            */
+
+            const confirmed = confirm(
+                'Are you sure you want to delete this product?'
+            );
+
+
+            // Stop if user clicks Cancel
+            if (!confirmed) {
+                return;
             }
-        );
+
+
+            try {
+
+                /*
+                Send DELETE request to Laravel.
+                */
+
+                const response = await fetch(
+                    `/api/products/${id}`,
+                    {
+                        method: 'DELETE',
+
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    }
+                );
+
+
+                /*
+                Convert response to JSON.
+
+                Laravel returns:
+
+                {
+                    "message":
+                    "Product deleted successfully"
+                }
+                */
+
+                const data = await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        'Failed to delete product'
+                    );
+
+                }
+
+
+                /*
+                Show success message.
+                */
+
+                document.getElementById('message')
+                    .textContent =
+                    'Product deleted successfully!';
+
+
+                /*
+                Reload table after deletion.
+                */
+
+                loadProducts();
+
+
+            } catch (error) {
+
+                document.getElementById('message')
+                    .textContent =
+                    error.message;
+
+                console.error(error);
+
+            }
+
+        }
+
+
+        /*
+        ==========================================
+        CANCEL EDIT / RESET FORM
+        ==========================================
+
+        Changes the form back to Add Product mode.
+        */
+
+        function resetForm() {
+
+            // Clear all input fields
+            document.getElementById('productForm').reset();
+
+
+            // Clear editing ID
+            editingProductId = null;
+
+
+            // Change title back
+            document.getElementById('formTitle').textContent =
+                'Add Product';
+
+
+            // Change button back
+            document.getElementById('submitButton').textContent =
+                'Add Product';
+
+
+            // Hide cancel button
+            document.getElementById('cancelButton').style.display =
+                'none';
+
+        }
+
+
+        /*
+        ==========================================
+        CANCEL BUTTON
+        ==========================================
+        */
+
+        document
+            .getElementById('cancelButton')
+            .addEventListener('click', function () {
+
+                resetForm();
+
+                document.getElementById('message')
+                    .textContent = '';
+
+            });
+
+
+        /*
+        ==========================================
+        LOAD PRODUCTS WHEN PAGE OPENS
+        ==========================================
+        */
+
+        loadProducts();
 
     </script>
 
