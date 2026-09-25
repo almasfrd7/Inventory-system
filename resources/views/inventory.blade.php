@@ -8,13 +8,30 @@
     <title>Inventory System</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
+
+    <!-- ==============================
+         NAVIGATION BAR
+         ============================== -->
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="/">
+                Inventory System
+            </a>
+
+            <a href="/" class="btn btn-outline-light">
+                Dashboard
+            </a>
+
+        </div>
+
+    </nav>
 
     <div class="container py-5">
 
@@ -89,12 +106,7 @@
                             Name:
                         </label>
 
-                        <input
-                            type="text"
-                            id="name"
-                            class="form-control"
-                            required
-                        >
+                        <input type="text" id="name" class="form-control" required>
 
                     </div>
 
@@ -105,12 +117,7 @@
                             Code:
                         </label>
 
-                        <input
-                            type="text"
-                            id="code"
-                            class="form-control"
-                            required
-                        >
+                        <input type="text" id="code" class="form-control" required>
 
                     </div>
 
@@ -121,14 +128,7 @@
                             Price:
                         </label>
 
-                        <input
-                            type="number"
-                            id="price"
-                            class="form-control"
-                            step="0.01"
-                            min="0"
-                            required
-                        >
+                        <input type="number" id="price" class="form-control" step="0.01" min="0" required>
 
                     </div>
 
@@ -139,13 +139,7 @@
                             Stock:
                         </label>
 
-                        <input
-                            type="number"
-                            id="stock"
-                            class="form-control"
-                            min="0"
-                            required
-                        >
+                        <input type="number" id="stock" class="form-control" min="0" required>
 
                     </div>
 
@@ -156,30 +150,17 @@
                             Description:
                         </label>
 
-                        <textarea
-                            id="description"
-                            class="form-control"
-                            rows="4"
-                        ></textarea>
+                        <textarea id="description" class="form-control" rows="4"></textarea>
 
                     </div>
 
                     <!-- Submit button -->
-                    <button
-                        type="submit"
-                        id="submitButton"
-                        class="btn btn-primary me-2"
-                    >
+                    <button type="submit" id="submitButton" class="btn btn-primary me-2">
                         Add Product
                     </button>
 
                     <!-- Cancel edit button -->
-                    <button
-                        type="button"
-                        id="cancelButton"
-                        class="btn btn-secondary"
-                        style="display: none;"
-                    >
+                    <button type="button" id="cancelButton" class="btn btn-secondary" style="display: none;">
                         Cancel
                     </button>
 
@@ -310,7 +291,7 @@
                 document.getElementById('loading').textContent = '';
 
 
-            } 
+            }
             catch (error) {
 
                 document.getElementById('loading').textContent = '';
