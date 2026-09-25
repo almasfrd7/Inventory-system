@@ -7,213 +7,192 @@
 
     <title>Inventory System</title>
 
-    <style>
-        /* ==============================
-           GENERAL PAGE STYLING
-           ============================== */
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #f5f5f5;
-        }
-
-        h1 {
-            margin-bottom: 30px;
-        }
-
-        h2 {
-            margin-top: 40px;
-        }
-
-        /* ==============================
-           TABLE STYLING
-           ============================== */
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #eee;
-        }
-
-        /* ==============================
-           FORM STYLING
-           ============================== */
-
-        form {
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-            max-width: 500px;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 8px 15px;
-            border: none;
-            cursor: pointer;
-            margin-right: 5px;
-        }
-
-        #submitButton {
-            background-color: #007bff;
-            color: white;
-        }
-
-        #cancelButton {
-            background-color: #777;
-            color: white;
-            display: none;
-        }
-
-        .editButton {
-            background-color: #ffc107;
-        }
-
-        .deleteButton {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        /* ==============================
-           MESSAGE STYLING
-           ============================== */
-
-        #loading {
-            margin-bottom: 15px;
-        }
-
-        #error {
-            color: red;
-            margin-bottom: 15px;
-        }
-
-        #message {
-            margin-top: 15px;
-        }
-    </style>
+    <!-- Bootstrap 5 CSS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 </head>
 
 <body>
 
-    <h1>Inventory System</h1>
+    <div class="container py-5">
 
-    <!-- Loading message -->
-    <div id="loading">
-        Loading products...
+        <h1 class="mb-4">Inventory System</h1>
+
+        <!-- Loading message -->
+        <div id="loading" class="alert alert-info">
+            Loading products...
+        </div>
+
+        <!-- Error message -->
+        <div id="error" class="alert alert-danger"></div>
+
+        <!-- ==============================
+             PRODUCT TABLE
+             ============================== -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header">
+                <h2 class="h5 mb-0">Products</h2>
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover table-bordered align-middle mb-0">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Code</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="productTable">
+                            <!-- Products will be inserted here using JavaScript -->
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==============================
+             ADD / EDIT PRODUCT FORM
+             ============================== -->
+
+        <div class="card shadow-sm">
+
+            <div class="card-header">
+                <h2 id="formTitle" class="h5 mb-0">Add Product</h2>
+            </div>
+
+            <div class="card-body">
+
+                <form id="productForm">
+
+                    <div class="mb-3">
+
+                        <!-- Product name -->
+                        <label for="name" class="form-label">
+                            Name:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <!-- Product code -->
+                        <label for="code" class="form-label">
+                            Code:
+                        </label>
+
+                        <input
+                            type="text"
+                            id="code"
+                            class="form-control"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <!-- Product price -->
+                        <label for="price" class="form-label">
+                            Price:
+                        </label>
+
+                        <input
+                            type="number"
+                            id="price"
+                            class="form-control"
+                            step="0.01"
+                            min="0"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <!-- Product stock -->
+                        <label for="stock" class="form-label">
+                            Stock:
+                        </label>
+
+                        <input
+                            type="number"
+                            id="stock"
+                            class="form-control"
+                            min="0"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <!-- Product description -->
+                        <label for="description" class="form-label">
+                            Description:
+                        </label>
+
+                        <textarea
+                            id="description"
+                            class="form-control"
+                            rows="4"
+                        ></textarea>
+
+                    </div>
+
+                    <!-- Submit button -->
+                    <button
+                        type="submit"
+                        id="submitButton"
+                        class="btn btn-primary me-2"
+                    >
+                        Add Product
+                    </button>
+
+                    <!-- Cancel edit button -->
+                    <button
+                        type="button"
+                        id="cancelButton"
+                        class="btn btn-secondary"
+                        style="display: none;"
+                    >
+                        Cancel
+                    </button>
+
+                </form>
+
+                <!-- Success / error message -->
+                <p id="message" class="mt-3 mb-0"></p>
+
+            </div>
+
+        </div>
+
     </div>
-
-    <!-- Error message -->
-    <div id="error"></div>
-
-    <!-- ==============================
-         PRODUCT TABLE
-         ============================== -->
-
-    <table>
-
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Code</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-
-        <tbody id="productTable">
-            <!-- Products will be inserted here using JavaScript -->
-        </tbody>
-
-    </table>
-
-
-    <!-- ==============================
-         ADD / EDIT PRODUCT FORM
-         ============================== -->
-
-    <h2 id="formTitle">Add Product</h2>
-
-    <form id="productForm">
-
-        <!-- Product name -->
-        <label for="name">
-            Name:
-        </label>
-
-        <input type="text" id="name" required>
-
-
-        <!-- Product code -->
-        <label for="code">
-            Code:
-        </label>
-
-        <input type="text" id="code" required>
-
-
-        <!-- Product price -->
-        <label for="price">
-            Price:
-        </label>
-
-        <input type="number" id="price" step="0.01" min="0" required>
-
-
-        <!-- Product stock -->
-        <label for="stock">
-            Stock:
-        </label>
-
-        <input type="number" id="stock" min="0" required>
-
-
-        <!-- Product description -->
-        <label for="description">
-            Description:
-        </label>
-
-        <textarea id="description" rows="4"></textarea>
-
-
-        <!-- Submit button -->
-        <button type="submit" id="submitButton">
-            Add Product
-        </button>
-
-
-        <!-- Cancel edit button -->
-        <button type="button" id="cancelButton">
-            Cancel
-        </button>
-
-    </form>
-
-    <!-- Success / error message -->
-    <p id="message"></p>
-
 
     <script>
 
@@ -303,14 +282,14 @@
                         <td>
 
                             <button
-                                class="editButton"
+                                class="btn btn-sm btn-warning me-1"
                                 onclick="editProduct(${product.id})"
                             >
                                 Edit
                             </button>
 
                             <button
-                                class="deleteButton"
+                                class="btn btn-sm btn-danger"
                                 onclick="deleteProduct(${product.id})"
                             >
                                 Delete
