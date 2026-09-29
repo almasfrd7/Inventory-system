@@ -38,12 +38,12 @@
         <h1 class="mb-4">Inventory System</h1>
 
         <!-- Loading message -->
-        <div id="loading" class="alert alert-info">
+        <div id="loading" class="alert alert-info d-none" role="status">
             Loading products...
         </div>
 
         <!-- Error message -->
-        <div id="error" class="alert alert-danger"></div>
+        <div id="error" class="alert alert-danger d-none" role="alert"></div>
 
         <!-- ==============================
              PRODUCT TABLE
@@ -194,6 +194,19 @@
 
         /*
         ==========================================
+        STOCK STATUS SETTINGS
+        ==========================================
+
+        A product with stock from 1 to this value
+        is shown as low stock. Zero stock is always
+        shown separately as out of stock.
+        */
+
+        const LOW_STOCK_THRESHOLD = 5;
+
+
+        /*
+        ==========================================
         GET ALL PRODUCTS
         ==========================================
 
@@ -206,6 +219,20 @@
         */
 
         async function loadProducts() {
+
+            /*
+            Show loading only while the API request is
+            running. Hide a previous error before retrying.
+            */
+
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('error');
+
+            loading.textContent = 'Loading products...';
+            loading.classList.remove('d-none');
+
+            errorMessage.textContent = '';
+            errorMessage.classList.add('d-none');
 
             try {
 
@@ -242,6 +269,31 @@
 
 
                     /*
+                    Show a clear stock status beside
+                    the stock quantity in the table.
+                    */
+
+                    let stockStatus;
+
+                    if (product.stock === 0) {
+
+                        stockStatus =
+                            '<span class="badge text-bg-danger ms-1">Out of stock</span>';
+
+                    } else if (product.stock <= LOW_STOCK_THRESHOLD) {
+
+                        stockStatus =
+                            '<span class="badge text-bg-warning ms-1">Low stock</span>';
+
+                    } else {
+
+                        stockStatus =
+                            '<span class="badge text-bg-success ms-1">In stock</span>';
+
+                    }
+
+
+                    /*
                     Add product information
                     and action buttons.
                     */
@@ -256,7 +308,7 @@
 
                         <td>RM ${parseFloat(product.price).toFixed(2)}</td>
 
-                        <td>${product.stock}</td>
+                        <td>${product.stock}${stockStatus}</td>
 
                         <td>${product.description ?? ''}</td>
 
@@ -267,6 +319,13 @@
                                 onclick="editProduct(${product.id})"
                             >
                                 Edit
+                            </button>
+
+                            <button
+                                class="btn btn-sm btn-info me-1"
+                                onclick="adjustStock(${product.id})"
+                            >
+                                Adjust Stock
                             </button>
 
                             <button
@@ -287,17 +346,21 @@
                 });
 
 
-                // Hide loading message
+                // Hide loading message after products load successfully.
                 document.getElementById('loading').textContent = '';
+                document.getElementById('loading').classList.add('d-none');
 
 
             }
             catch (error) {
 
+                // Hide loading and show the error only when the request fails.
                 document.getElementById('loading').textContent = '';
+                document.getElementById('loading').classList.add('d-none');
 
                 document.getElementById('error').textContent =
                     'Unable to load products.';
+                document.getElementById('error').classList.remove('d-none');
 
                 console.error(error);
 
@@ -614,6 +677,102 @@
                 }
 
             });
+
+
+        /*
+        ==========================================
+        ADJUST PRODUCT STOCK
+        ==========================================
+
+        A positive number adds stock.
+        A negative number removes stock.
+        */
+
+        async function adjustStock(id) {
+
+            const input = prompt(
+                'Enter stock adjustment. Use a positive number to add stock or a negative number to remove stock.'
+            );
+
+
+            // Stop when the user cancels the prompt.
+            if (input === null) {
+                return;
+            }
+
+
+            const quantity = Number(input);
+
+
+            // Only whole, non-zero stock changes are valid.
+            if (!Number.isInteger(quantity) || quantity === 0) {
+
+                document.getElementById('message').textContent =
+                    'Enter a whole number other than zero.';
+
+                return;
+
+            }
+
+
+            try {
+
+                const response = await fetch(
+                    `/api/products/${id}/adjust-stock`,
+                    {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+
+                        body: JSON.stringify({ quantity })
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok) {
+
+                    if (data.errors) {
+
+                        const errors = Object.values(data.errors)
+                            .flat()
+                            .join(' ');
+
+                        throw new Error(errors);
+
+                    }
+
+                    throw new Error(
+                        data.message ||
+                        'Failed to adjust stock'
+                    );
+
+                }
+
+
+                document.getElementById('message').textContent =
+                    data.message;
+
+
+                // Reload the table so the new stock and status appear.
+                loadProducts();
+
+
+            } catch (error) {
+
+                document.getElementById('message').textContent =
+                    error.message;
+
+                console.error(error);
+
+            }
+
+        }
 
 
         /*

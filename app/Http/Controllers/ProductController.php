@@ -45,6 +45,45 @@ class ProductController extends Controller
         return $product;
     }
 
+    /*
+    ==========================================
+    ADJUST PRODUCT STOCK
+    ==========================================
+
+    quantity uses a signed number:
+
+    positive = add stock
+    negative = remove stock
+
+    Keeping this separate from update() makes
+    stock movements explicit and prevents stock
+    from being reduced below zero.
+    */
+    public function adjustStock(Request $request, Product $product)
+    {
+        $data = $request->validate([
+            'quantity' => 'required|integer|not_in:0',
+        ]);
+
+        $newStock = $product->stock + $data['quantity'];
+
+        // Do not allow a stock adjustment below zero.
+        if ($newStock < 0) {
+            return response()->json([
+                'message' => 'Stock cannot be reduced below zero.',
+            ], 422);
+        }
+
+        $product->update([
+            'stock' => $newStock,
+        ]);
+
+        return response()->json([
+            'message' => 'Stock adjusted successfully.',
+            'product' => $product,
+        ]);
+    }
+
     public function destroy(Product $product)
     {
         $product->delete();
