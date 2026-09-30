@@ -51,8 +51,13 @@
 
         <div class="card shadow-sm mb-4">
 
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h2 class="h5 mb-0">Products</h2>
+
+                <!-- Opens the Add Product Bootstrap modal -->
+                <button type="button" class="btn btn-sm btn-primary" onclick="openAddProductModal()">
+                    Add Product
+                </button>
             </div>
 
             <div class="card-body">
@@ -85,17 +90,23 @@
 
         </div>
 
-        <!-- ==============================
+    <!-- ==============================
              ADD / EDIT PRODUCT FORM
              ============================== -->
 
-        <div class="card shadow-sm">
+        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="formTitle" aria-hidden="true">
 
-            <div class="card-header">
+            <div class="modal-dialog modal-lg">
+
+                <div class="modal-content">
+
+            <div class="modal-header">
                 <h2 id="formTitle" class="h5 mb-0">Add Product</h2>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="card-body">
+            <div class="modal-body">
 
                 <form id="productForm">
 
@@ -154,15 +165,19 @@
 
                     </div>
 
-                    <!-- Submit button -->
-                    <button type="submit" id="submitButton" class="btn btn-primary me-2">
-                        Add Product
-                    </button>
+                    <div class="modal-footer px-0 pb-0">
 
-                    <!-- Cancel edit button -->
-                    <button type="button" id="cancelButton" class="btn btn-secondary" style="display: none;">
-                        Cancel
-                    </button>
+                        <!-- Cancel edit button -->
+                        <button type="button" id="cancelButton" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <!-- Submit button -->
+                        <button type="submit" id="submitButton" class="btn btn-primary">
+                            Add Product
+                        </button>
+
+                    </div>
 
                 </form>
 
@@ -174,6 +189,49 @@
         </div>
 
     </div>
+
+</div>
+
+</div>
+
+    <!-- ==============================
+         ADJUST STOCK MODAL
+         ============================== -->
+
+    <div class="modal fade" id="adjustStockModal" tabindex="-1" aria-labelledby="adjustStockModalTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="adjustStockForm">
+                    <div class="modal-header">
+                        <h2 id="adjustStockModalTitle" class="modal-title fs-5">Adjust Stock</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="text-muted small">
+                            Enter a positive number to add stock or a negative number to remove stock.
+                        </p>
+
+                        <!-- Stock adjustment quantity -->
+                        <label for="adjustmentQuantity" class="form-label">Stock adjustment:</label>
+                        <input type="number" id="adjustmentQuantity" class="form-control" step="1" required>
+
+                        <!-- Validation errors for this modal -->
+                        <div id="adjustStockError" class="alert alert-danger d-none mt-3 mb-0" role="alert"></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info">Save Adjustment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JavaScript is required for the modal. -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
 
@@ -190,6 +248,16 @@
         */
 
         let editingProductId = null;
+
+
+        // Stores the product whose stock is being adjusted in the modal.
+        let adjustingProductId = null;
+
+
+        // Bootstrap controls opening and closing the stock adjustment modal.
+        const adjustStockModal = new bootstrap.Modal(
+            document.getElementById('adjustStockModal')
+        );
 
 
         /*
@@ -684,95 +752,118 @@
         ADJUST PRODUCT STOCK
         ==========================================
 
-        A positive number adds stock.
-        A negative number removes stock.
+        Opens a Bootstrap modal instead of using
+        the browser's default prompt popup.
         */
 
-        async function adjustStock(id) {
+        function adjustStock(id) {
 
-            const input = prompt(
-                'Enter stock adjustment. Use a positive number to add stock or a negative number to remove stock.'
-            );
-
-
-            // Stop when the user cancels the prompt.
-            if (input === null) {
-                return;
-            }
+            // Remember which product should receive the adjustment.
+            adjustingProductId = id;
 
 
-            const quantity = Number(input);
+            // Reset the modal so it is clean every time it opens.
+            document.getElementById('adjustStockForm').reset();
+
+            document.getElementById('adjustStockError').textContent = '';
+            document.getElementById('adjustStockError').classList.add('d-none');
+
+            adjustStockModal.show();
+
+        }
 
 
-            // Only whole, non-zero stock changes are valid.
-            if (!Number.isInteger(quantity) || quantity === 0) {
+        /*
+        Submit the stock adjustment entered in
+        the Bootstrap modal.
+        */
 
-                document.getElementById('message').textContent =
-                    'Enter a whole number other than zero.';
+        document
+            .getElementById('adjustStockForm')
+            .addEventListener('submit', async function (event) {
 
-                return;
-
-            }
+                event.preventDefault();
 
 
-            try {
-
-                const response = await fetch(
-                    `/api/products/${id}/adjust-stock`,
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-
-                        body: JSON.stringify({ quantity })
-                    }
+                const quantity = Number(
+                    document.getElementById('adjustmentQuantity').value
                 );
 
 
-                const data = await response.json();
+                // Only whole, non-zero stock changes are valid.
+                if (!Number.isInteger(quantity) || quantity === 0) {
 
+                    document.getElementById('adjustStockError').textContent =
+                        'Enter a whole number other than zero.';
 
-                if (!response.ok) {
+                    document.getElementById('adjustStockError').classList.remove('d-none');
 
-                    if (data.errors) {
-
-                        const errors = Object.values(data.errors)
-                            .flat()
-                            .join(' ');
-
-                        throw new Error(errors);
-
-                    }
-
-                    throw new Error(
-                        data.message ||
-                        'Failed to adjust stock'
-                    );
+                    return;
 
                 }
 
 
-                document.getElementById('message').textContent =
-                    data.message;
+                try {
+
+                    const response = await fetch(
+                        `/api/products/${adjustingProductId}/adjust-stock`,
+                        {
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+
+                            body: JSON.stringify({ quantity })
+                        }
+                    );
 
 
-                // Reload the table so the new stock and status appear.
-                loadProducts();
+                    const data = await response.json();
 
 
-            } catch (error) {
+                    if (!response.ok) {
 
-                document.getElementById('message').textContent =
-                    error.message;
+                        if (data.errors) {
 
-                console.error(error);
+                            const errors = Object.values(data.errors)
+                                .flat()
+                                .join(' ');
 
-            }
+                            throw new Error(errors);
 
-        }
+                        }
+
+                        throw new Error(
+                            data.message ||
+                            'Failed to adjust stock'
+                        );
+
+                    }
+
+
+                    document.getElementById('message').textContent =
+                        data.message;
+
+
+                    // Close the modal and reload the table with the new stock.
+                    adjustStockModal.hide();
+                    loadProducts();
+
+
+                } catch (error) {
+
+                    document.getElementById('adjustStockError').textContent =
+                        error.message;
+
+                    document.getElementById('adjustStockError').classList.remove('d-none');
+
+                    console.error(error);
+
+                }
+
+            });
 
 
         /*
