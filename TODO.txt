@@ -1,7 +1,7 @@
 # INVENTORY SYSTEM - TODO LIST
 
 PROJECT STATUS
-Current stage: Inventory Features
+Current stage: Backend Improvements
 
 =============================
 COMPLETED
@@ -48,6 +48,12 @@ COMPLETED
 
 [✓] DELETE /api/products/{id}
     - Delete product
+
+[✓] POST /api/products/{id}/adjust-stock
+    - Add / remove stock (cannot go below zero)
+
+[✓] GET /api/products/stats
+    - Dashboard statistics (total products, total stock, low stock, out of stock)
 
 [✓] API TESTING
 [✓] Test GET using PowerShell
@@ -122,13 +128,13 @@ COMPLETED
 [✓] Display total number of products
 [✓] Display total stock quantity
 [✓] Add low-stock calculation
-[ ] Add low-stock indicator to product table
-[ ] Add out-of-stock indicator
-[ ] Add stock adjustment
-[ ] Add/remove stock
-[ ] Add product search
-[ ] Add product filtering
-[ ] Add product sorting
+[✓] Add low-stock indicator to product table
+[✓] Add out-of-stock indicator
+[✓] Add stock adjustment
+[✓] Add/remove stock
+[✓] Add product search
+[✓] Add product filtering
+[✓] Add product sorting
 
 [✓] PHASE 7 - DASHBOARD / UI
 
@@ -138,14 +144,14 @@ COMPLETED
 [✓] Add navigation to Inventory page
 [✓] Add Inventory directory / shortcut
 [✓] Add product statistics cards
-[✓] Connect dashboard statistics to GET /api/products
+[✓] Connect dashboard statistics to GET /api/products/stats
 [✓] Add responsive Bootstrap 5 layout
 
-[ ] Improve product table
-[ ] Add success notifications
-[ ] Add error notifications
-[ ] Add loading indicators
-[ ] Add empty-state message
+[✓] Improve product table
+[✓] Add success notifications
+[✓] Add error notifications
+[✓] Add loading indicators
+[✓] Add empty-state message
 [ ] Improve form validation
 
 =============================
@@ -156,9 +162,9 @@ TO DO
 
 [ ] Improve API response structure
 [ ] Add proper HTTP status codes
-[ ] Add API pagination
-[ ] Add API search/filtering
-[ ] Add API sorting
+[✓] Add API pagination
+[✓] Add API search/filtering
+[✓] Add API sorting
 [ ] Improve validation
 [ ] Improve error handling
 [ ] Add API authentication
@@ -212,9 +218,7 @@ INVENTORY FEATURES
 ↓
 DASHBOARD / UI
 ↓
-[CURRENT] INVENTORY FEATURES
-↓
-BACKEND IMPROVEMENTS
+[CURRENT] BACKEND IMPROVEMENTS
 ↓
 TESTING
 ↓
@@ -224,8 +228,8 @@ DEPLOYMENT
 NEXT 3 TASKS
 =============================
 
-[ ] 1. Add low-stock indicator to the inventory table
+[ ] 1. Improve form validation (show errors next to each field)
 
-[ ] 2. Add out-of-stock indicator
+[ ] 2. Improve API response structure and HTTP status codes
 
-[ ] 3. Add stock adjustment / add-remove stock
+[ ] 3. Add API authentication and protect product-management endpoints
