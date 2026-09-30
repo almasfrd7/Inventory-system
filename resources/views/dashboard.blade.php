@@ -8,7 +8,10 @@
     <title>Inventory System - Dashboard</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 </head>
 
 <body class="bg-light">
@@ -150,7 +153,10 @@
 
                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
 
-                        <a href="/inventory" class="btn btn-primary px-4">
+                        <a
+                            href="/inventory"
+                            class="btn btn-primary px-4"
+                        >
                             Go to Inventory
                         </a>
 
@@ -177,7 +183,10 @@
 
                 <div class="col-md-4">
 
-                    <a href="/inventory" class="text-decoration-none">
+                    <a
+                        href="/inventory"
+                        class="text-decoration-none"
+                    >
 
                         <div class="card border-0 shadow-sm h-100">
 
@@ -199,10 +208,39 @@
 
                 </div>
 
+                <div class="col-md-4">
+
+                    <a
+                        href="/inventory"
+                        class="text-decoration-none"
+                    >
+
+                        <div class="card border-0 shadow-sm h-100">
+
+                            <div class="card-body">
+
+                                <h3 class="h6 fw-bold text-dark">
+                                    Add Product
+                                </h3>
+
+                                <p class="text-muted small mb-0">
+                                    Add a new product to the inventory.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
 
                 <div class="col-md-4">
 
-                    <a href="/inventory" class="text-decoration-none">
+                    <a
+                        href="/inventory"
+                        class="text-decoration-none"
+                    >
 
                         <div class="card border-0 shadow-sm h-100">
 
@@ -258,16 +296,32 @@
         LOAD DASHBOARD DATA
         ==========================================
 
-        Get all products from the Laravel API
-        and calculate the dashboard statistics.
+        Get the statistics from the Laravel API.
+
+        The product list is paginated now, so the
+        dashboard uses a separate endpoint that
+        returns the totals already calculated:
+
+        GET /api/products/stats
+
+        {
+            "total_products": 37,
+            "total_stock": 512,
+            "low_stock": 4,
+            "out_of_stock": 2
+        }
         */
 
         async function loadDashboard() {
 
             try {
 
-                // Get products from the API
-                const response = await fetch('/api/products');
+                // Get statistics from the API
+                const response = await fetch('/api/products/stats', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
                 // Check if API request failed
                 if (!response.ok) {
@@ -275,26 +329,12 @@
                 }
 
                 // Convert API response to JSON
-                const products = await response.json();
-
-                // Count all products
-                const totalProducts = products.length;
-
-                // Add the stock quantity of every product
-                const totalStock = products.reduce((total, product) => {
-                    return total + Number(product.stock);
-                }, 0);
-
-                // Count products with stock from 1 to 5
-                const lowStock = products.filter(product => {
-                    const stock = Number(product.stock);
-                    return stock > 0 && stock <= 5;
-                }).length;
+                const stats = await response.json();
 
                 // Update dashboard values
-                document.getElementById('totalProducts').textContent = totalProducts;
-                document.getElementById('totalStock').textContent = totalStock;
-                document.getElementById('lowStock').textContent = lowStock;
+                document.getElementById('totalProducts').textContent = stats.total_products;
+                document.getElementById('totalStock').textContent = stats.total_stock;
+                document.getElementById('lowStock').textContent = stats.low_stock;
 
             } catch (error) {
 

@@ -9,6 +9,15 @@
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Clickable table headers used for sorting */
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 
 <body>
@@ -69,17 +78,63 @@
 
             <div class="card-body">
 
+                <!-- ==============================
+                     SEARCH AND FILTER
+                     ============================== -->
+
+                <div class="row g-2 mb-3">
+
+                    <div class="col-md-5">
+
+                        <!-- Search by name, code or description -->
+                        <input
+                            type="search"
+                            id="searchInput"
+                            class="form-control"
+                            placeholder="Search name, code or description..."
+                            aria-label="Search products"
+                        >
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <!-- Filter by stock status -->
+                        <select id="statusFilter" class="form-select" aria-label="Filter by stock status">
+                            <option value="">All stock levels</option>
+                            <option value="in_stock">In stock</option>
+                            <option value="low_stock">Low stock</option>
+                            <option value="out_of_stock">Out of stock</option>
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-3 d-grid">
+
+                        <!-- Clears the search box and the stock filter -->
+                        <button type="button" id="clearFiltersButton" class="btn btn-outline-secondary">
+                            Clear filters
+                        </button>
+
+                    </div>
+
+                </div>
+
                 <div class="table-responsive">
 
                     <table class="table table-striped table-hover table-bordered align-middle mb-0">
 
+                        <!--
+                            Click a heading marked "sortable" to sort by it.
+                            Click again to reverse the direction.
+                        -->
                         <thead class="table-dark">
                             <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Code</th>
-                                <th>Price</th>
-                                <th>Stock</th>
+                                <th class="sortable" data-sort="id">ID <span class="sort-indicator"></span></th>
+                                <th class="sortable" data-sort="name">Name <span class="sort-indicator"></span></th>
+                                <th class="sortable" data-sort="code">Code <span class="sort-indicator"></span></th>
+                                <th class="sortable" data-sort="price">Price <span class="sort-indicator"></span></th>
+                                <th class="sortable" data-sort="stock">Stock <span class="sort-indicator"></span></th>
                                 <th>Description</th>
                                 <th>Actions</th>
                             </tr>
@@ -92,6 +147,35 @@
                     </table>
 
                 </div>
+
+            </div>
+
+            <!-- ==============================
+                 PAGINATION
+                 ============================== -->
+
+            <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+
+                <div class="d-flex flex-wrap align-items-center gap-2">
+
+                    <!-- Rows per page -->
+                    <label for="perPage" class="mb-0 small text-muted">Rows per page:</label>
+
+                    <select id="perPage" class="form-select form-select-sm w-auto">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="50">50</option>
+                    </select>
+
+                    <!-- Example: Showing 1-10 of 37 products -->
+                    <span id="paginationInfo" class="small text-muted"></span>
+
+                </div>
+
+                <!-- Page buttons are created by JavaScript -->
+                <nav aria-label="Product pages">
+                    <ul id="pagination" class="pagination pagination-sm mb-0"></ul>
+                </nav>
 
             </div>
 
@@ -206,8 +290,7 @@
          ADJUST STOCK MODAL
          ============================== -->
 
-    <div class="modal fade" id="adjustStockModal" tabindex="-1" aria-labelledby="adjustStockModalTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="adjustStockModal" tabindex="-1" aria-labelledby="adjustStockModalTitle" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form id="adjustStockForm">
@@ -287,9 +370,63 @@
         A product with stock from 1 to this value
         is shown as low stock. Zero stock is always
         shown separately as out of stock.
+
+        Keep this the same as LOW_STOCK_THRESHOLD
+        in ProductController.php.
         */
 
         const LOW_STOCK_THRESHOLD = 5;
+
+
+        /*
+        ==========================================
+        LIST STATE
+        ==========================================
+
+        Remembers the current search, filter, sort
+        and page. Every change to one of these
+        reloads the table from the API.
+        */
+
+        const listState = {
+            search: '',
+            status: '',
+            sortBy: 'id',
+            sortDir: 'asc',
+            perPage: 10,
+            page: 1
+        };
+
+
+        /*
+        Every products request gets a number. If a
+        slower, older request finishes after a newer
+        one, its result is ignored.
+        */
+
+        let latestRequestId = 0;
+
+
+        /*
+        ==========================================
+        ESCAPE HTML
+        ==========================================
+
+        Product names and descriptions are typed by
+        users. Escaping them stops text like
+        <script> from running inside the table.
+        */
+
+        function escapeHtml(value) {
+
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        }
 
 
         /*
@@ -340,13 +477,16 @@
 
         API endpoint:
 
-        GET /api/products
+        GET /api/products?search=&status=&sort_by=&sort_dir=&per_page=&page=
 
-        This function gets all products from Laravel
-        and displays them in the table.
+        This function gets one page of products from
+        Laravel (using the current search, filter and
+        sort) and displays them in the table.
         */
 
         async function loadProducts() {
+
+            const requestId = ++latestRequestId;
 
             /*
             Show loading only while the API request is
@@ -362,9 +502,31 @@
             errorMessage.textContent = '';
             errorMessage.classList.add('d-none');
 
+
+            /*
+            Build the query string.
+            Empty search / filter values are not sent.
+            */
+
+            const params = new URLSearchParams({
+                page: listState.page,
+                per_page: listState.perPage,
+                sort_by: listState.sortBy,
+                sort_dir: listState.sortDir
+            });
+
+            if (listState.search) {
+                params.set('search', listState.search);
+            }
+
+            if (listState.status) {
+                params.set('status', listState.status);
+            }
+
+
             try {
 
-                const response = await fetch('/api/products', {
+                const response = await fetch(`/api/products?${params.toString()}`, {
                     headers: {
                         'Accept': 'application/json'
                     }
@@ -377,8 +539,41 @@
                 }
 
 
-                // Convert response to JSON
-                const products = await response.json();
+                /*
+                Convert response to JSON.
+
+                The API is paginated, so the products are
+                inside result.data.
+                */
+                const result = await response.json();
+
+
+                // A newer request has started, so ignore this old result.
+                if (requestId !== latestRequestId) {
+                    return;
+                }
+
+
+                const products = result.data;
+
+
+                /*
+                If the current page no longer exists
+                (for example after deleting the last product
+                on the last page), go to the last page.
+                */
+
+                if (
+                    products.length === 0 &&
+                    result.last_page > 0 &&
+                    listState.page > result.last_page
+                ) {
+
+                    listState.page = result.last_page;
+
+                    return loadProducts();
+
+                }
 
 
                 // Get table body
@@ -387,6 +582,32 @@
 
                 // Clear existing rows
                 table.innerHTML = '';
+
+
+                /*
+                Empty state: no products match the
+                current search / filter.
+                */
+
+                if (products.length === 0) {
+
+                    const hasFilters =
+                        listState.search !== '' ||
+                        listState.status !== '';
+
+                    table.innerHTML = `
+
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                ${hasFilters
+                                    ? 'No products match your search or filter.'
+                                    : 'No products yet. Click "Add Product" to create one.'}
+                            </td>
+                        </tr>
+
+                    `;
+
+                }
 
 
                 /*
@@ -438,15 +659,15 @@
 
                         <td>${product.id}</td>
 
-                        <td>${product.name}</td>
+                        <td>${escapeHtml(product.name)}</td>
 
-                        <td>${product.code}</td>
+                        <td>${escapeHtml(product.code)}</td>
 
                         <td>RM ${parseFloat(product.price).toFixed(2)}</td>
 
                         <td>${stock}${stockStatus}</td>
 
-                        <td>${product.description ?? ''}</td>
+                        <td>${escapeHtml(product.description)}</td>
 
                         <td>
 
@@ -482,6 +703,14 @@
                 });
 
 
+                // Update the page buttons and the "Showing x-y of z" text.
+                renderPagination(result);
+
+
+                // Show the arrow on the column currently used for sorting.
+                updateSortIndicators();
+
+
                 // Hide loading message after products load successfully.
                 document.getElementById('loading').textContent = '';
                 document.getElementById('loading').classList.add('d-none');
@@ -489,6 +718,11 @@
 
             }
             catch (error) {
+
+                // Ignore errors from old requests that were replaced.
+                if (requestId !== latestRequestId) {
+                    return;
+                }
 
                 // Hide loading and show the error only when the request fails.
                 document.getElementById('loading').textContent = '';
@@ -499,6 +733,308 @@
                 console.error(error);
 
             }
+
+        }
+
+
+        /*
+        ==========================================
+        PAGINATION
+        ==========================================
+
+        Builds the page number buttons from the
+        pagination data returned by Laravel.
+
+        Shows the first page, the last page and the
+        pages around the current page. Any gap is
+        shown as "...".
+        */
+
+        function getPageNumbers(current, last) {
+
+            const pages = [];
+
+            for (let i = 1; i <= last; i++) {
+
+                if (i === 1 || i === last || Math.abs(i - current) <= 2) {
+
+                    pages.push(i);
+
+                } else if (pages[pages.length - 1] !== '...') {
+
+                    pages.push('...');
+
+                }
+
+            }
+
+            return pages;
+
+        }
+
+        function renderPagination(result) {
+
+            const pagination = document.getElementById('pagination');
+            const info = document.getElementById('paginationInfo');
+
+            pagination.innerHTML = '';
+
+
+            // "Showing 1-10 of 37 products"
+            if (result.total === 0) {
+
+                info.textContent = 'No products found';
+
+            } else {
+
+                info.textContent =
+                    `Showing ${result.from}-${result.to} of ${result.total} products`;
+
+            }
+
+
+            // Only one page, so no page buttons are needed.
+            if (result.last_page <= 1) {
+                return;
+            }
+
+
+            const current = result.current_page;
+            const last = result.last_page;
+
+
+            // Helper that creates one page button
+            function addButton(label, page, disabled = false, active = false) {
+
+                const li = document.createElement('li');
+
+                li.className =
+                    'page-item' +
+                    (disabled ? ' disabled' : '') +
+                    (active ? ' active' : '');
+
+                const button = document.createElement('button');
+
+                button.type = 'button';
+                button.className = 'page-link';
+                button.textContent = label;
+
+                if (!disabled && page !== null) {
+                    button.dataset.page = page;
+                }
+
+                li.appendChild(button);
+                pagination.appendChild(li);
+
+            }
+
+
+            // Previous button
+            addButton('Previous', current - 1, current === 1);
+
+
+            // Page numbers
+            getPageNumbers(current, last).forEach(page => {
+
+                if (page === '...') {
+
+                    addButton('...', null, true);
+
+                } else {
+
+                    addButton(page, page, false, page === current);
+
+                }
+
+            });
+
+
+            // Next button
+            addButton('Next', current + 1, current === last);
+
+        }
+
+
+        /*
+        Clicking a page button loads that page.
+        One listener on the list handles all buttons.
+        */
+
+        document
+            .getElementById('pagination')
+            .addEventListener('click', function (event) {
+
+                const button = event.target.closest('button[data-page]');
+
+                if (!button) {
+                    return;
+                }
+
+                listState.page = Number(button.dataset.page);
+
+                loadProducts();
+
+            });
+
+
+        /*
+        Rows per page (5, 10 or 50).
+        Go back to page 1 because the page count changes.
+        */
+
+        document
+            .getElementById('perPage')
+            .addEventListener('change', function () {
+
+                listState.perPage = Number(this.value);
+                listState.page = 1;
+
+                loadProducts();
+
+            });
+
+
+        /*
+        ==========================================
+        SEARCH
+        ==========================================
+
+        Waits 300ms after the user stops typing before
+        calling the API, so it is not called on every
+        key press.
+        */
+
+        let searchTimer = null;
+
+        document
+            .getElementById('searchInput')
+            .addEventListener('input', function () {
+
+                clearTimeout(searchTimer);
+
+                searchTimer = setTimeout(() => {
+
+                    listState.search = this.value.trim();
+                    listState.page = 1;
+
+                    loadProducts();
+
+                }, 300);
+
+            });
+
+
+        /*
+        ==========================================
+        FILTER BY STOCK STATUS
+        ==========================================
+        */
+
+        document
+            .getElementById('statusFilter')
+            .addEventListener('change', function () {
+
+                listState.status = this.value;
+                listState.page = 1;
+
+                loadProducts();
+
+            });
+
+
+        /*
+        ==========================================
+        CLEAR FILTERS
+        ==========================================
+
+        Clears the search box and the stock filter.
+        Sorting and rows per page are kept.
+        */
+
+        document
+            .getElementById('clearFiltersButton')
+            .addEventListener('click', function () {
+
+                clearTimeout(searchTimer);
+
+                document.getElementById('searchInput').value = '';
+                document.getElementById('statusFilter').value = '';
+
+                listState.search = '';
+                listState.status = '';
+                listState.page = 1;
+
+                loadProducts();
+
+            });
+
+
+        /*
+        ==========================================
+        SORTING
+        ==========================================
+
+        Click a column heading to sort by it.
+        Click the same heading again to reverse
+        the direction.
+        */
+
+        document
+            .querySelectorAll('th.sortable')
+            .forEach(heading => {
+
+                heading.addEventListener('click', function () {
+
+                    const column = this.dataset.sort;
+
+                    if (listState.sortBy === column) {
+
+                        // Same column: switch between ascending and descending
+                        listState.sortDir =
+                            listState.sortDir === 'asc' ? 'desc' : 'asc';
+
+                    } else {
+
+                        // New column: start ascending
+                        listState.sortBy = column;
+                        listState.sortDir = 'asc';
+
+                    }
+
+                    listState.page = 1;
+
+                    loadProducts();
+
+                });
+
+            });
+
+
+        /*
+        Shows an arrow (up = ascending, down = descending)
+        beside the column that is currently sorted.
+        */
+
+        function updateSortIndicators() {
+
+            document
+                .querySelectorAll('th.sortable')
+                .forEach(heading => {
+
+                    const indicator = heading.querySelector('.sort-indicator');
+
+                    if (heading.dataset.sort === listState.sortBy) {
+
+                        indicator.textContent =
+                            listState.sortDir === 'asc' ? '▲' : '▼';
+
+                    } else {
+
+                        indicator.textContent = '';
+
+                    }
+
+                });
 
         }
 
@@ -1052,6 +1588,9 @@
 
                 /*
                 Reload table after deletion.
+
+                If that was the last product on the page,
+                loadProducts() moves back to the last page.
                 */
 
                 loadProducts();
