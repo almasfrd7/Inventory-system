@@ -8,10 +8,7 @@
     <title>Inventory System - Dashboard</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body class="bg-light">
@@ -153,10 +150,7 @@
 
                     <div class="col-md-4 text-md-end mt-3 mt-md-0">
 
-                        <a
-                            href="/inventory"
-                            class="btn btn-primary px-4"
-                        >
+                        <a href="/inventory" class="btn btn-primary px-4">
                             Go to Inventory
                         </a>
 
@@ -183,10 +177,7 @@
 
                 <div class="col-md-4">
 
-                    <a
-                        href="/inventory"
-                        class="text-decoration-none"
-                    >
+                    <a href="/inventory" class="text-decoration-none">
 
                         <div class="card border-0 shadow-sm h-100">
 
@@ -208,39 +199,10 @@
 
                 </div>
 
-                <div class="col-md-4">
-
-                    <a
-                        href="/inventory"
-                        class="text-decoration-none"
-                    >
-
-                        <div class="card border-0 shadow-sm h-100">
-
-                            <div class="card-body">
-
-                                <h3 class="h6 fw-bold text-dark">
-                                    Add Product
-                                </h3>
-
-                                <p class="text-muted small mb-0">
-                                    Add a new product to the inventory.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    </a>
-
-                </div>
 
                 <div class="col-md-4">
 
-                    <a
-                        href="/inventory"
-                        class="text-decoration-none"
-                    >
+                    <a href="/inventory" class="text-decoration-none">
 
                         <div class="card border-0 shadow-sm h-100">
 
