@@ -45,6 +45,13 @@
         <!-- Error message -->
         <div id="error" class="alert alert-danger d-none" role="alert"></div>
 
+        <!--
+            Page-level success message.
+            Success messages are shown here (not inside the modal)
+            so they stay visible after the modal closes.
+        -->
+        <div id="pageMessage" class="alert alert-success d-none" role="alert"></div>
+
         <!-- ==============================
              PRODUCT TABLE
              ============================== -->
@@ -90,99 +97,104 @@
 
         </div>
 
+    </div>
+    <!-- End of main page container -->
+
     <!-- ==============================
-             ADD / EDIT PRODUCT FORM
-             ============================== -->
+         ADD / EDIT PRODUCT FORM
+         ============================== -->
 
-        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="formTitle" aria-hidden="true">
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="formTitle" aria-hidden="true">
 
-            <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg">
 
-                <div class="modal-content">
+            <div class="modal-content">
 
-            <div class="modal-header">
-                <h2 id="formTitle" class="h5 mb-0">Add Product</h2>
+                <div class="modal-header">
+                    <h2 id="formTitle" class="h5 mb-0">Add Product</h2>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-            <div class="modal-body">
+                <div class="modal-body">
 
-                <form id="productForm">
+                    <form id="productForm">
 
-                    <div class="mb-3">
+                        <div class="mb-3">
 
-                        <!-- Product name -->
-                        <label for="name" class="form-label">
-                            Name:
-                        </label>
+                            <!-- Product name -->
+                            <label for="name" class="form-label">
+                                Name:
+                            </label>
 
-                        <input type="text" id="name" class="form-control" required>
+                            <input type="text" id="name" class="form-control" required>
 
-                    </div>
+                        </div>
 
-                    <div class="mb-3">
+                        <div class="mb-3">
 
-                        <!-- Product code -->
-                        <label for="code" class="form-label">
-                            Code:
-                        </label>
+                            <!-- Product code -->
+                            <label for="code" class="form-label">
+                                Code:
+                            </label>
 
-                        <input type="text" id="code" class="form-control" required>
+                            <input type="text" id="code" class="form-control" required>
 
-                    </div>
+                        </div>
 
-                    <div class="mb-3">
+                        <div class="mb-3">
 
-                        <!-- Product price -->
-                        <label for="price" class="form-label">
-                            Price:
-                        </label>
+                            <!-- Product price -->
+                            <label for="price" class="form-label">
+                                Price:
+                            </label>
 
-                        <input type="number" id="price" class="form-control" step="0.01" min="0" required>
+                            <input type="number" id="price" class="form-control" step="0.01" min="0" required>
 
-                    </div>
+                        </div>
 
-                    <div class="mb-3">
+                        <div class="mb-3">
 
-                        <!-- Product stock -->
-                        <label for="stock" class="form-label">
-                            Stock:
-                        </label>
+                            <!-- Product stock -->
+                            <label for="stock" class="form-label">
+                                Stock:
+                            </label>
 
-                        <input type="number" id="stock" class="form-control" min="0" required>
+                            <input type="number" id="stock" class="form-control" min="0" required>
 
-                    </div>
+                        </div>
 
-                    <div class="mb-3">
+                        <div class="mb-3">
 
-                        <!-- Product description -->
-                        <label for="description" class="form-label">
-                            Description:
-                        </label>
+                            <!-- Product description -->
+                            <label for="description" class="form-label">
+                                Description:
+                            </label>
 
-                        <textarea id="description" class="form-control" rows="4"></textarea>
+                            <textarea id="description" class="form-control" rows="4"></textarea>
 
-                    </div>
+                        </div>
 
-                    <div class="modal-footer px-0 pb-0">
+                        <div class="modal-footer px-0 pb-0">
 
-                        <!-- Cancel edit button -->
-                        <button type="button" id="cancelButton" class="btn btn-secondary" data-bs-dismiss="modal">
-                            Cancel
-                        </button>
+                            <!-- Cancel edit button -->
+                            <button type="button" id="cancelButton" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Cancel
+                            </button>
 
-                        <!-- Submit button -->
-                        <button type="submit" id="submitButton" class="btn btn-primary">
-                            Add Product
-                        </button>
+                            <!-- Submit button -->
+                            <button type="submit" id="submitButton" class="btn btn-primary">
+                                Add Product
+                            </button>
 
-                    </div>
+                        </div>
 
-                </form>
+                    </form>
 
-                <!-- Success / error message -->
-                <p id="message" class="mt-3 mb-0"></p>
+                    <!-- Validation / error message shown inside the modal -->
+                    <p id="message" class="text-danger mt-3 mb-0"></p>
+
+                </div>
 
             </div>
 
@@ -190,15 +202,12 @@
 
     </div>
 
-</div>
-
-</div>
-
     <!-- ==============================
          ADJUST STOCK MODAL
          ============================== -->
 
-    <div class="modal fade" id="adjustStockModal" tabindex="-1" aria-labelledby="adjustStockModalTitle" aria-hidden="true">
+    <div class="modal fade" id="adjustStockModal" tabindex="-1" aria-labelledby="adjustStockModalTitle"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form id="adjustStockForm">
@@ -254,6 +263,16 @@
         let adjustingProductId = null;
 
 
+        /*
+        Bootstrap controls opening and closing the
+        Add / Edit Product modal.
+        */
+
+        const productModalElement = document.getElementById('productModal');
+
+        const productModal = new bootstrap.Modal(productModalElement);
+
+
         // Bootstrap controls opening and closing the stock adjustment modal.
         const adjustStockModal = new bootstrap.Modal(
             document.getElementById('adjustStockModal')
@@ -271,6 +290,47 @@
         */
 
         const LOW_STOCK_THRESHOLD = 5;
+
+
+        /*
+        ==========================================
+        PAGE MESSAGES
+        ==========================================
+
+        showPageMessage() shows a green success
+        message at the top of the page and hides it
+        automatically after 4 seconds.
+
+        showPageError() shows a red error message
+        at the top of the page.
+        */
+
+        let pageMessageTimer = null;
+
+        function showPageMessage(text) {
+
+            const box = document.getElementById('pageMessage');
+
+            box.textContent = text;
+            box.classList.remove('d-none');
+
+            // Restart the timer if another message appears quickly.
+            clearTimeout(pageMessageTimer);
+
+            pageMessageTimer = setTimeout(() => {
+                box.classList.add('d-none');
+            }, 4000);
+
+        }
+
+        function showPageError(text) {
+
+            const box = document.getElementById('error');
+
+            box.textContent = text;
+            box.classList.remove('d-none');
+
+        }
 
 
         /*
@@ -304,7 +364,11 @@
 
             try {
 
-                const response = await fetch('/api/products');
+                const response = await fetch('/api/products', {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
 
                 // Check if API request failed
@@ -336,6 +400,10 @@
                     const row = document.createElement('tr');
 
 
+                    // Make sure stock is compared as a number
+                    const stock = Number(product.stock);
+
+
                     /*
                     Show a clear stock status beside
                     the stock quantity in the table.
@@ -343,12 +411,12 @@
 
                     let stockStatus;
 
-                    if (product.stock === 0) {
+                    if (stock === 0) {
 
                         stockStatus =
                             '<span class="badge text-bg-danger ms-1">Out of stock</span>';
 
-                    } else if (product.stock <= LOW_STOCK_THRESHOLD) {
+                    } else if (stock <= LOW_STOCK_THRESHOLD) {
 
                         stockStatus =
                             '<span class="badge text-bg-warning ms-1">Low stock</span>';
@@ -376,7 +444,7 @@
 
                         <td>RM ${parseFloat(product.price).toFixed(2)}</td>
 
-                        <td>${product.stock}${stockStatus}</td>
+                        <td>${stock}${stockStatus}</td>
 
                         <td>${product.description ?? ''}</td>
 
@@ -426,9 +494,7 @@
                 document.getElementById('loading').textContent = '';
                 document.getElementById('loading').classList.add('d-none');
 
-                document.getElementById('error').textContent =
-                    'Unable to load products.';
-                document.getElementById('error').classList.remove('d-none');
+                showPageError('Unable to load products.');
 
                 console.error(error);
 
@@ -439,7 +505,30 @@
 
         /*
         ==========================================
-        GET SINGLE PRODUCT
+        OPEN ADD PRODUCT MODAL
+        ==========================================
+
+        Called by the Add Product button.
+
+        Clears the form, makes sure it is in Add
+        mode, then opens the Bootstrap modal.
+        */
+
+        function openAddProductModal() {
+
+            resetForm();
+
+            // Clear any old message inside the modal
+            document.getElementById('message').textContent = '';
+
+            productModal.show();
+
+        }
+
+
+        /*
+        ==========================================
+        GET SINGLE PRODUCT / OPEN EDIT MODAL
         ==========================================
 
         API endpoint:
@@ -447,14 +536,19 @@
         GET /api/products/{id}
 
         This function gets one product from Laravel
-        when the user clicks Edit.
+        when the user clicks Edit, fills the form
+        and opens the modal.
         */
 
         async function editProduct(id) {
 
             try {
 
-                const response = await fetch(`/api/products/${id}`);
+                const response = await fetch(`/api/products/${id}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
 
 
                 if (!response.ok) {
@@ -514,21 +608,17 @@
                 document.getElementById('submitButton').textContent =
                     'Update Product';
 
-                document.getElementById('cancelButton').style.display =
-                    'inline-block';
+                // Clear any old message inside the modal
+                document.getElementById('message').textContent = '';
 
 
-                // Scroll to form
-                document.getElementById('productForm')
-                    .scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                // Open the modal
+                productModal.show();
 
 
             } catch (error) {
 
-                document.getElementById('message').textContent =
-                    error.message;
+                showPageError(error.message);
 
                 console.error(error);
 
@@ -595,6 +685,10 @@
                 };
 
 
+                // Remember the mode before the form is reset.
+                const isEditing = editingProductId !== null;
+
+
                 try {
 
                     let response;
@@ -609,7 +703,7 @@
                     send PUT request.
                     */
 
-                    if (editingProductId !== null) {
+                    if (isEditing) {
 
                         response = await fetch(
                             `/api/products/${editingProductId}`,
@@ -702,29 +796,34 @@
 
 
                     /*
-                    Show success message.
+                    Show success message on the page
+                    (not inside the modal, because the
+                    modal is about to close).
                     */
 
-                    if (editingProductId !== null) {
+                    if (isEditing) {
 
-                        document.getElementById('message')
-                            .textContent =
-                            'Product updated successfully!';
+                        showPageMessage(
+                            'Product updated successfully!'
+                        );
 
                     } else {
 
-                        document.getElementById('message')
-                            .textContent =
-                            'Product added successfully!';
+                        showPageMessage(
+                            'Product added successfully!'
+                        );
 
                     }
 
 
                     /*
-                    Reset form.
+                    Close the modal.
+
+                    The form is reset automatically by the
+                    hidden.bs.modal event listener below.
                     */
 
-                    resetForm();
+                    productModal.hide();
 
 
                     /*
@@ -736,6 +835,12 @@
 
 
                 } catch (error) {
+
+                    /*
+                    Keep the modal open and show the
+                    error inside it so the user can
+                    fix the problem and try again.
+                    */
 
                     document.getElementById('message')
                         .textContent = error.message;
@@ -843,8 +948,8 @@
                     }
 
 
-                    document.getElementById('message').textContent =
-                        data.message;
+                    // Show the success message on the page.
+                    showPageMessage(data.message);
 
 
                     // Close the modal and reload the table with the new stock.
@@ -940,9 +1045,9 @@
                 Show success message.
                 */
 
-                document.getElementById('message')
-                    .textContent =
-                    'Product deleted successfully!';
+                showPageMessage(
+                    'Product deleted successfully!'
+                );
 
 
                 /*
@@ -954,9 +1059,7 @@
 
             } catch (error) {
 
-                document.getElementById('message')
-                    .textContent =
-                    error.message;
+                showPageError(error.message);
 
                 console.error(error);
 
@@ -967,10 +1070,14 @@
 
         /*
         ==========================================
-        CANCEL EDIT / RESET FORM
+        RESET FORM
         ==========================================
 
         Changes the form back to Add Product mode.
+
+        The Cancel button lives inside the modal and
+        is closed by Bootstrap (data-bs-dismiss), so
+        it must NOT be hidden here.
         */
 
         function resetForm() {
@@ -992,30 +1099,30 @@
             document.getElementById('submitButton').textContent =
                 'Add Product';
 
-
-            // Hide cancel button
-            document.getElementById('cancelButton').style.display =
-                'none';
-
         }
 
 
         /*
         ==========================================
-        CANCEL BUTTON
+        MODAL CLOSED
         ==========================================
+
+        Runs whenever the Add / Edit modal closes:
+        Cancel button, X button, clicking outside
+        the modal, or after a successful save.
+
+        Resets the form so the next time it opens
+        it is clean.
         */
 
-        document
-            .getElementById('cancelButton')
-            .addEventListener('click', function () {
+        productModalElement.addEventListener('hidden.bs.modal', function () {
 
-                resetForm();
+            resetForm();
 
-                document.getElementById('message')
-                    .textContent = '';
+            document.getElementById('message')
+                .textContent = '';
 
-            });
+        });
 
 
         /*
