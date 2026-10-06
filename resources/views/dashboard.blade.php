@@ -304,11 +304,16 @@
 
         GET /api/products/stats
 
+        Response structure:
+
         {
-            "total_products": 37,
-            "total_stock": 512,
-            "low_stock": 4,
-            "out_of_stock": 2
+            "success": true,
+            "data": {
+                "total_products": 37,
+                "total_stock": 512,
+                "low_stock": 4,
+                "out_of_stock": 2
+            }
         }
         */
 
@@ -329,7 +334,12 @@
                 }
 
                 // Convert API response to JSON
-                const stats = await response.json();
+                const data = await response.json();
+
+
+
+                // Extract data from the new response structure
+                const stats = data.data;
 
                 // Update dashboard values
                 document.getElementById('totalProducts').textContent = stats.total_products;

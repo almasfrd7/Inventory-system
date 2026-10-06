@@ -50,7 +50,6 @@ class ProductController extends Controller
     */
     public function index(Request $request)
     {
-        // Only allow known values so users cannot sort by any column they like.
         $filters = $request->validate([
             'search' => 'nullable|string|max:255',
             'status' => 'nullable|in:in_stock,low_stock,out_of_stock',
@@ -126,19 +125,24 @@ class ProductController extends Controller
         Returns JSON like:
 
         {
-            "data": [ ...products... ],
-            "current_page": 1,
-            "last_page": 4,
-            "per_page": 10,
-            "total": 37,
-            "from": 1,
-            "to": 10,
-            ...
+            "success": true,
+            "data": {
+                "data": [ ...products... ],
+                "current_page": 1,
+                "last_page": 4,
+                "per_page": 10,
+                "total": 37,
+                "from": 1,
+                "to": 10,
+            }
         }
         */
-        return $query
-            ->paginate($filters['per_page'] ?? 10)
-            ->withQueryString();
+        return response()->json([
+            'success' => true,
+            'data' => $query
+                ->paginate($filters['per_page'] ?? 10)
+                ->withQueryString(),
+        ], 200);
     }
 
 
@@ -156,19 +160,22 @@ class ProductController extends Controller
     public function stats()
     {
         return response()->json([
-            'total_products' => Product::count(),
-            'total_stock' => (int) Product::sum('stock'),
-            'low_stock' => Product::where('stock', '>', 0)
-                ->where('stock', '<=', self::LOW_STOCK_THRESHOLD)
-                ->count(),
-            'out_of_stock' => Product::where('stock', 0)->count(),
-        ]);
+            'success' => true,
+            'data' => [
+                'total_products' => Product::count(),
+                'total_stock' => (int) Product::sum('stock'),
+                'low_stock' => Product::where('stock', '>', 0)
+                    ->where('stock', '<=', self::LOW_STOCK_THRESHOLD)
+                    ->count(),
+                'out_of_stock' => Product::where('stock', 0)->count(),
+            ],
+        ], 200);
     }
 
 
     public function store(Request $request)
     {
-        $product = $request->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:products,code',
             'price' => 'required|numeric|min:0',
@@ -176,12 +183,21 @@ class ProductController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        return Product::create($product);
+        $product = Product::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product created successfully.',
+            'data' => $product,
+        ], 201);
     }
 
     public function show(Product $product)
     {
-        return $product;
+        return response()->json([
+            'success' => true,
+            'data' => $product,
+        ], 200);
     }
 
     public function update(Request $request, Product $product)
@@ -196,7 +212,11 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        return $product;
+        return response()->json([
+            'success' => true,
+            'message' => 'Product updated successfully.',
+            'data' => $product,
+        ], 200);
     }
 
     /*
@@ -224,6 +244,8 @@ class ProductController extends Controller
         // Do not allow a stock adjustment below zero.
         if ($newStock < 0) {
             return response()->json([
+                'success' => false,
+                'data' => null,
                 'message' => 'Stock cannot be reduced below zero.',
             ], 422);
         }
@@ -233,9 +255,10 @@ class ProductController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Stock adjusted successfully.',
-            'product' => $product,
-        ]);
+            'data' => $product,
+        ], 200);
     }
 
     public function destroy(Product $product)
@@ -243,7 +266,8 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json([
-            'message' => 'Product deleted successfully'
-        ]);
+            'success' => true,
+            'message' => 'Product deleted successfully.',
+        ], 200);
     }
 }

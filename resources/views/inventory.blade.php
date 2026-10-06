@@ -554,7 +554,7 @@
                 }
 
 
-                const products = result.data;
+                const products = result.data.data;
 
 
                 /*
@@ -565,11 +565,11 @@
 
                 if (
                     products.length === 0 &&
-                    result.last_page > 0 &&
-                    listState.page > result.last_page
+                    result.data.last_page > 0 &&
+                    listState.page > result.data.last_page
                 ) {
 
-                    listState.page = result.last_page;
+                    listState.page = result.data.last_page;
 
                     return loadProducts();
 
@@ -704,7 +704,7 @@
 
 
                 // Update the page buttons and the "Showing x-y of z" text.
-                renderPagination(result);
+                renderPagination(result.data);
 
 
                 // Show the arrow on the column currently used for sorting.
@@ -1093,13 +1093,15 @@
 
 
                 // Convert API response to JSON
-                const product = await response.json();
+                const result = await response.json();
 
 
                 /*
                 Put the product data into
                 the form fields.
                 */
+
+                const product = result.data;
 
                 document.getElementById('name').value =
                     product.name;
