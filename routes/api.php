@@ -1,27 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use Illuminate\Support\Facades\Route;
 
-// Dashboard statistics (total products, total stock, low stock).
-// This MUST be above apiResource, otherwise "stats" would be
-// treated as a product ID by GET /api/products/{product}.
-Route::get(
-    'products/stats',
-    [ProductController::class, 'stats']
-);
+// Public: login only (5 attempts per minute per IP).
+Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
-// Adjust stock without changing the other product details.
-Route::post(
-    'products/{product}/adjust-stock',
-    [ProductController::class, 'adjustStock']
-);
+// Everything below needs a valid Sanctum token.
+Route::middleware('auth:sanctum')->group(function () {
 
-// This single line creates the REST endpoints
-Route::apiResource('products', ProductController::class);
-// GET     /api/products   (search, filter, sort, pagination)
-// POST    /api/products
-// GET     /api/products/{product}
-// PUT     /api/products/{product}
-// PATCH   /api/products/{product}
-// DELETE  /api/products/{product}
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('me', [AuthController::class, 'me']);
+
+    // Must be above apiResource, otherwise "stats" is treated as a product ID.
+    Route::get('products/stats', [ProductController::class, 'stats']);
+    Route::post('products/{product}/adjust-stock', [ProductController::class, 'adjustStock']);
+
+    Route::apiResource('products', ProductController::class);
+});

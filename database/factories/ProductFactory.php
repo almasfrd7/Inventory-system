@@ -10,16 +10,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProductFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'name' => fake()->words(3, true),
-            'code' => fake()->unique()->text(8),
+            'code' => strtoupper(fake()->unique()->bothify('??-####')),
             'price' => fake()->randomFloat(2, 1, 999),
             'stock' => fake()->numberBetween(0, 100),
             'description' => fake()->sentence(10),
